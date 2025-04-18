@@ -1,0 +1,116 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 50px;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+h1 {
+  color: #61dafb;
+  margin-bottom: 40px;
+}
+
+.round-selector {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.round-info {
+  text-align: center;
+  min-width: 300px;
+}
+
+.round-info h2 {
+  margin: 0;
+  color: #61dafb;
+}
+
+.round-info p {
+  margin: 5px 0 0 0;
+  font-size: 0.8em;
+  color: #8b9cb3;
+}
+
+button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #4fa8d1;
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  background-color: #4a4a4a;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.question-button {
+  font-size: 1.2rem;
+  padding: 15px 30px;
+  margin: 20px 0;
+  background-color: #28a745;
+}
+
+.question-button:hover {
+  background-color: #218838;
+}
+
+.question-display {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: rgba(97, 218, 251, 0.1);
+  border-radius: 10px;
+  min-width: 80%;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-text {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: #ffffff;
+  margin: 0;
+  padding: 20px;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
