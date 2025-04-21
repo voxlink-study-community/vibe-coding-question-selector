@@ -6,10 +6,28 @@ function App() {
   const [currentRound, setCurrentRound] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [usedQuestions, setUsedQuestions] = useState(new Map());
+  const [currentCategory, setCurrentCategory] = useState('DL'); // 기본 카테고리
+
+  const categories = [
+    { value: 'DL', label: '딥러닝' },
+    { value: 'CS', label: '컴퓨터공학' },
+    { value: 'ENG', label: '영어회화' }
+  ];
 
   useEffect(() => {
-    // test.txt 파일에서 질문 데이터 로드
-    fetch('/test.txt')
+    loadQuestions();
+  }, [currentCategory]);
+
+  const loadQuestions = () => {
+    // 카테고리별 파일 매핑
+    const categoryFiles = {
+      'DL': '/dl.txt',
+      'CS': '/cs.txt',
+      'ENG': '/eng.txt'
+    };
+
+    // 선택된 카테고리의 파일 로드
+    fetch(categoryFiles[currentCategory])
       .then(response => response.text())
       .then(data => {
         const questionList = data
@@ -17,8 +35,14 @@ function App() {
           .filter(line => line.trim().startsWith('-'))
           .map(line => line.trim());
         setQuestions(questionList);
+        // 카테고리가 변경되면 현재 질문 초기화
+        setCurrentQuestion('');
+      })
+      .catch(error => {
+        console.error('Error loading questions:', error);
+        setQuestions([]);
       });
-  }, []);
+  };
 
   const getRandomQuestion = () => {
     const roundQuestions = usedQuestions.get(currentRound) || new Set();
@@ -46,6 +70,12 @@ function App() {
     setCurrentQuestion(question);
   };
 
+  const handleCategoryChange = (event) => {
+    setCurrentCategory(event.target.value);
+    // 카테고리가 변경되면 사용된 질문 초기화
+    setUsedQuestions(new Map());
+  };
+
   const getCurrentDate = () => {
     const date = new Date();
     date.setDate(date.getDate() + (currentRound - 1) * 7); // 회차당 1주일 간격
@@ -60,6 +90,21 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>코딩 면접 질문 선택기</h1>
+        
+        <div className="category-selector">
+          <select 
+            value={currentCategory} 
+            onChange={handleCategoryChange}
+            className="category-dropdown"
+          >
+            {categories.map(category => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="round-selector">
           <button 
             onClick={() => setCurrentRound(prev => Math.max(1, prev - 1))}

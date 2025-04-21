@@ -114,3 +114,31 @@ button:disabled {
     transform: rotate(360deg);
   }
 }
+
+.category-selector {
+  margin-bottom: 30px;
+  width: 300px;
+}
+
+.category-dropdown {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  border: 2px solid #61dafb;
+  border-radius: 5px;
+  background-color: #282c34;
+  color: white;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.category-dropdown:hover {
+  border-color: #4fa8d1;
+}
+
+.category-dropdown option {
+  background-color: #282c34;
+  color: white;
+  padding: 12px;
+}
