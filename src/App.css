@@ -1,0 +1,165 @@
+body {
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #fff;
+}
+
+/* 사이드바 스타일 */
+.sidebar-paper {
+  padding: 20px;
+  border-radius: 10px;
+  height: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #eaeaea;
+}
+
+.round-selector-mui {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #eaeaea;
+}
+
+.round-header {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.round-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.round-info-mui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.category-info {
+  text-align: center;
+  padding: 8px;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+}
+
+.select-button-mui {
+  padding: 12px 24px !important;
+  font-weight: 500 !important;
+  border-radius: 30px !important;
+  text-transform: none !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.select-button-mui:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 메인 질문 영역 스타일 */
+.question-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 80px);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.question-card-large {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px !important;
+  border: 1px solid #eaeaea !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: #fafafa !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.question-content-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px !important;
+}
+
+.question-text {
+  font-size: 2.5rem !important;
+  line-height: 1.4 !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+  text-align: center;
+}
+
+.no-question-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #9e9e9e;
+  padding: 20px;
+}
+
+.question-card-large.rolling {
+  animation: roll 0.15s infinite alternate;
+}
+
+@keyframes roll {
+  0% {
+    transform: translateY(-3px);
+    background-color: #f0f0f0 !important;
+  }
+  100% {
+    transform: translateY(3px);
+    background-color: #fafafa !important;
+  }
+}
+
+/* 반응형 */
+@media (max-width: 960px) {
+  .question-text {
+    font-size: 2rem !important;
+  }
+  
+  .question-container {
+    height: auto;
+    min-height: 60vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .question-text {
+    font-size: 1.5rem !important;
+  }
+  
+  .round-selector-mui {
+    padding: 10px;
+  }
+  
+  .question-content-large {
+    padding: 20px !important;
+  }
+  
+  .sidebar-paper {
+    margin-bottom: 20px;
+  }
+}
