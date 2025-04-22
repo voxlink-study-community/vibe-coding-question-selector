@@ -24,21 +24,31 @@ import "./App.css";
 
 /** 카테고리별 TXT 파일 경로 매핑 */
 const CATEGORY_FILES = {
-  DL: "/dl_db.txt",      // Deep‑Learning 면접 질문
-  CS: "/cs_db.txt",      // Computer‑Science 면접 질문
-  EN: "/en_db.txt"       // 영어회화 문장
+  DL: "/dl_db.txt", // Deep‑Learning 면접 질문
+  CS: "/cs_db.txt", // Computer‑Science 면접 질문
+  EN: "/en_db.txt", // 영어회화 문장
+};
+
+/** 카테고리 이름 매핑 */
+const CATEGORY_NAMES = {
+  DL: "딥러닝",
+  CS: "컴퓨터 사이언스",
+  EN: "영어회화",
 };
 
 /** 루트 컴포넌트 */
 function App() {
   // ──────────────────────────────── 상태 정의(useState) ────────────────────────────────
-  const [category, setCategory] = useState("DL");   // 현재 카테고리
-  const [questions, setQuestions] = useState([]);    // 로드된 질문 배열
+  const [category, setCategory] = useState("DL"); // 현재 카테고리
+  const [questions, setQuestions] = useState([]); // 로드된 질문 배열
   const [currentRound, setCurrentRound] = useState(1); // 회차(1주 단위)
   const [currentQuestion, setCurrentQuestion] = useState(""); // 선택된 질문
 
   // key 형식: "{category}-{round}", value: Set(이미 사용한 질문)
   const [usedQuestions, setUsedQuestions] = useState(new Map());
+
+  // 현재 회차에 사용한 질문 수와 전체 질문 수 추적
+  const [usedCount, setUsedCount] = useState(0);
 
   // ──────────────────────────────── 데이터 로드(useEffect) ────────────────────────────────
   useEffect(() => {
@@ -48,6 +58,7 @@ function App() {
     setCurrentRound(1);
     setCurrentQuestion("");
     setUsedQuestions(new Map());
+    setUsedCount(0);
 
     fetch(filePath)
       .then((res) => res.text())
@@ -56,7 +67,7 @@ function App() {
         const list = data
           .split("\n")
           .filter((line) => line.trim().startsWith("-"))
-          .map((line) => line.trim());
+          .map((line) => line.trim().substring(1).trim()); // "-" 기호 제거 및 앞뒤 공백 제거
         setQuestions(list);
       })
       .catch((err) => {
@@ -64,6 +75,13 @@ function App() {
         setQuestions([]);
       });
   }, [category]);
+
+  // 현재 회차에 대한 사용 질문 수 업데이트
+  useEffect(() => {
+    const key = `${category}-${currentRound}`;
+    const roundQuestions = usedQuestions.get(key) || new Set();
+    setUsedCount(roundQuestions.size);
+  }, [usedQuestions, category, currentRound]);
 
   // ──────────────────────────────── 무작위 질문 선택 ────────────────────────────────
   const getRandomQuestion = () => {
@@ -98,62 +116,93 @@ function App() {
     return d.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
     });
   };
 
   // ──────────────────────────────── JSX 반환 ────────────────────────────────
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>코딩 면접 / 영어회화 질문 선택기</h1>
+      <div className="app-container">
+        {/* 왼쪽 사이드바 */}
+        <div className="sidebar">
+          <h2 className="app-title">면접 질문 선택기</h2>
 
-        {/* ▼ 카테고리 드롭다운 */}
-        <div style={{ marginBottom: 30 }}>
-          <label htmlFor="category-select" style={{ marginRight: 10 }}>
-            카테고리 선택:
-          </label>
-          <select
-            id="category-select"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={{ fontSize: "1rem", padding: "6px 12px" }}
-          >
-            <option value="DL">DL</option>
-            <option value="CS">CS</option>
-            <option value="EN">영어회화</option>
-          </select>
-        </div>
-
-        {/* ▼ 회차 네비게이션 */}
-        <div className="round-selector">
-          <button
-            onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
-            disabled={currentRound === 1}
-          >
-            이전 회차
-          </button>
-
-          <div className="round-info">
-            <h2>{currentRound}회차</h2>
-            <p>{getCurrentDate()}</p>
+          {/* 카테고리 선택 */}
+          <div className="sidebar-section">
+            <h3 className="section-title">카테고리</h3>
+            <div className="category-selector">
+              {Object.keys(CATEGORY_FILES).map((cat) => (
+                <button
+                  key={cat}
+                  className={`category-button ${
+                    category === cat ? "active" : ""
+                  }`}
+                  onClick={() => setCategory(cat)}
+                >
+                  {CATEGORY_NAMES[cat]}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button onClick={() => setCurrentRound((prev) => prev + 1)}>
-            다음 회차
-          </button>
+          {/* 회차 선택 */}
+          <div className="sidebar-section">
+            <h3 className="section-title">회차 (날짜)</h3>
+            <div className="round-selector">
+              <button
+                onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
+                disabled={currentRound === 1}
+                className="round-button"
+              >
+                &lt;
+              </button>
+
+              <div className="round-info">
+                <h4>{currentRound}회차</h4>
+                <p>{getCurrentDate()}</p>
+              </div>
+
+              <button
+                onClick={() => setCurrentRound((prev) => prev + 1)}
+                className="round-button"
+              >
+                &gt;
+              </button>
+            </div>
+
+            <div className="stats">
+              <p>
+                사용된 질문: {usedCount} / {questions.length}
+              </p>
+            </div>
+          </div>
+
+          {/* 질문 선택 버튼 */}
+          <div className="sidebar-section">
+            <button className="question-button" onClick={handleSelectQuestion}>
+              새 질문 선택하기
+            </button>
+          </div>
         </div>
 
-        {/* ▼ 질문 선택 버튼 */}
-        <button className="question-button" onClick={handleSelectQuestion}>
-          질문 선택하기
-        </button>
+        {/* 메인 콘텐츠 영역 - 질문 표시 */}
+        <div className="main-content">
+          <div className="content-header">
+            <h2>
+              {CATEGORY_NAMES[category]} - {currentRound}회차 질문
+            </h2>
+          </div>
 
-        {/* ▼ 질문 표시 영역 */}
-        <div className="question-display">
-          {currentQuestion && <p className="question-text">{currentQuestion}</p>}
+          <div className="question-display">
+            {currentQuestion ? (
+              <p className="question-text">{currentQuestion}</p>
+            ) : (
+              <p className="placeholder-text">왼쪽에서 질문을 선택해주세요</p>
+            )}
+          </div>
         </div>
-      </header>
+      </div>
     </div>
   );
 }

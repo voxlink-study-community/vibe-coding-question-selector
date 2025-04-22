@@ -1,116 +1,243 @@
+/* 기본 리셋 및 전체 앱 스타일 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+  line-height: 1.5;
+}
+
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
+}
+
+/* 메인 컨테이너 레이아웃 */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  max-width: 1600px;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+  width: 320px;
+  background-color: #f5f5f7;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 50px;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  border-right: 1px solid #e8e8e8;
 }
 
-h1 {
-  color: #61dafb;
-  margin-bottom: 40px;
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: left;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e1e1e1;
 }
 
+.sidebar-section {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 카테고리 선택 버튼 */
+.category-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.category-button {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.category-button:hover {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.category-button.active {
+  background-color: #333;
+  color: #fff;
+  border-color: #333;
+  font-weight: 500;
+}
+
+/* 회차 선택 컨트롤 */
 .round-selector {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.round-info {
-  text-align: center;
-  min-width: 300px;
-}
-
-.round-info h2 {
-  margin: 0;
-  color: #61dafb;
-}
-
-.round-info p {
-  margin: 5px 0 0 0;
-  font-size: 0.8em;
-  color: #8b9cb3;
-}
-
-button {
-  background-color: #61dafb;
-  color: #282c34;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  background-color: #4fa8d1;
-  transform: translateY(-2px);
-}
-
-button:disabled {
-  background-color: #4a4a4a;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.question-button {
-  font-size: 1.2rem;
-  padding: 15px 30px;
-  margin: 20px 0;
-  background-color: #28a745;
-}
-
-.question-button:hover {
-  background-color: #218838;
-}
-
-.question-display {
-  margin-top: 30px;
-  padding: 20px;
-  background-color: rgba(97, 218, 251, 0.1);
-  border-radius: 10px;
-  min-width: 80%;
-  min-height: 100px;
+.round-button {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.round-button:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.round-button:disabled {
+  background-color: #f5f5f5;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #eee;
+}
+
+.round-info {
+  flex: 1;
+  text-align: center;
+}
+
+.round-info h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+.round-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.stats {
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+/* 질문 선택 버튼 */
+.question-button {
+  width: 100%;
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 0.9rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.question-button:hover {
+  background-color: #555;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 메인 콘텐츠 영역 */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.content-header {
+  margin-bottom: 2rem;
+  text-align: left;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.content-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 질문 표시 영역 */
+.question-display {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #fafafa;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.03) inset;
 }
 
 .question-text {
-  font-size: 1.2rem;
-  line-height: 1.5;
-  color: #ffffff;
-  margin: 0;
-  padding: 20px;
+  font-size: 1.4rem;
+  line-height: 1.7;
+  color: #333;
+  text-align: center;
+  max-width: 800px;
+  font-weight: 500;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.placeholder-text {
+  font-size: 1.1rem;
+  color: #aaa;
+  text-align: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e8e8e8;
+    padding: 1.5rem 1rem;
+  }
+  
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .question-text {
+    font-size: 1.2rem;
   }
 }
