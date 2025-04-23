@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/vibe-coding-question-selector/static/css/main.480745d6.css",
-    "main.js": "/vibe-coding-question-selector/static/js/main.ca143fc5.js",
+    "main.js": "/vibe-coding-question-selector/static/js/main.6f1dda64.js",
     "static/js/453.99e83779.chunk.js": "/vibe-coding-question-selector/static/js/453.99e83779.chunk.js",
     "index.html": "/vibe-coding-question-selector/index.html",
     "main.480745d6.css.map": "/vibe-coding-question-selector/static/css/main.480745d6.css.map",
-    "main.ca143fc5.js.map": "/vibe-coding-question-selector/static/js/main.ca143fc5.js.map",
+    "main.6f1dda64.js.map": "/vibe-coding-question-selector/static/js/main.6f1dda64.js.map",
     "453.99e83779.chunk.js.map": "/vibe-coding-question-selector/static/js/453.99e83779.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.480745d6.css",
-    "static/js/main.ca143fc5.js"
+    "static/js/main.6f1dda64.js"
   ]
 }
