@@ -241,3 +241,83 @@ body {
     font-size: 1.2rem;
   }
 }
+
+/* 영어 학습 컴포넌트 스타일 */
+.english-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.pattern-section,
+.question-section,
+.answer-section {
+  text-align: left;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pattern-section h3,
+.question-section h3,
+.answer-section h3 {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pattern-text {
+  font-size: 1.4rem;
+  color: #2c5282;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.question-text {
+  font-size: 1.4rem;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+.answer-toggle-button {
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.answer-toggle-button:hover {
+  background-color: #2d3748;
+}
+
+.answer-text {
+  font-size: 1.4rem;
+  color: #38a169;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+/* 반응형 디자인 추가 */
+@media (max-width: 768px) {
+  .english-content {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .pattern-text,
+  .question-text,
+  .answer-text {
+    font-size: 1.2rem;
+  }
+}
