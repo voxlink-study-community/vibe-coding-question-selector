@@ -3,27 +3,29 @@ import "./App.css";
 
 /** 카테고리별 TXT 파일 경로 매핑 */
 const CATEGORY_FILES = {
-  SP: "/vibe-coding-question-selector/en_sp_db.txt", // Sentence Pattern
-  PV: "/vibe-coding-question-selector/en_pv_db.txt", // Phrasal Verb
+  "SP,PV": [
+    "/vibe-coding-question-selector/en_sp_db.txt",
+    "/vibe-coding-question-selector/en_pv_db.txt"
+  ]
 };
 
 /** 카테고리 이름 매핑 */
 const CATEGORY_NAMES = {
-  SP: "Sentence Pattern",
-  PV: "Useful Phrasal Verbs",
+  "SP,PV": "Sentence Pattern & Phrasal Verbs"
 };
 
 /** 영어 학습 컴포넌트 */
 function En() {
   // ──────────────────────────────── 상태 정의 ────────────────────────────────
-  const [category, setCategory] = useState("SP");
+  const [category] = useState("SP,PV");
   const [patterns, setPatterns] = useState([]); // 패턴 목록
   const [currentRound, setCurrentRound] = useState(1);
   const [currentPattern, setCurrentPattern] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [currentExampleIndex, setCurrentExampleIndex] = useState(0); // 현재 예문 인덱스
+  const [currentExampleIndex, setCurrentExampleIndex] = useState(0);
+  const [isRoundStarted, setIsRoundStarted] = useState(false);
 
-  // key 형식: "{category}-{round}", value: Set(이미 사용한 패턴)
+  // key 형식: "round-{number}", value: Set(이미 사용한 패턴)
   const [usedPatterns, setUsedPatterns] = useState(new Map());
 
   // 현재 회차에 사용한 패턴 수와 전체 패턴 수 추적
@@ -31,66 +33,63 @@ function En() {
 
   // ──────────────────────────────── 데이터 로드 ────────────────────────────────
   useEffect(() => {
-    const filePath = CATEGORY_FILES[category];
+    Promise.all(CATEGORY_FILES[category].map(file => 
+      fetch(file)
+        .then(res => res.text())
+        .then(data => {
+          const filePatterns = [];
+          let currentPattern = null;
+          let examples = [];
 
-    // 카테고리 전환 시 UI 초기화
-    setCurrentRound(1);
-    setCurrentPattern(null);
-    setShowAnswer(false);
-    setUsedPatterns(new Map());
-    setUsedCount(0);
+          data.split("\n").forEach((line) => {
+            line = line.trim();
+            if (!line) return;
 
-    fetch(filePath)
-      .then((res) => res.text())
-      .then((data) => {
-        // 패턴과 예문들을 분리하여 처리
-        const patterns = [];
-        let currentPattern = null;
-        let examples = [];
-
-        data.split("\n").forEach((line) => {
-          line = line.trim();
-          if (!line) return; // 빈 줄 무시
-
-          if (line.startsWith("**")) {
-            // 패턴 줄: "**I'm going to ~~할 거예요**" 형식
-            if (currentPattern) {
-              patterns.push({ pattern: currentPattern, examples });
+            if (line.startsWith("**")) {
+              if (currentPattern) {
+                filePatterns.push({ pattern: currentPattern, examples });
+              }
+              currentPattern = line;
+              examples = [];
+            } else if (line) {
+              const parts = line.split("  ").map(s => s.trim()).filter(s => s);
+              if (parts.length >= 2) {
+                const [firstPart, ...rest] = parts;
+                const koreanPart = rest.join('  ');
+                if (firstPart.match(/[a-zA-Z]/)) {
+                  examples.push({ english: firstPart, korean: koreanPart });
+                } else {
+                  examples.push({ english: koreanPart, korean: firstPart });
+                }
+              }
             }
-            currentPattern = line;
-            examples = [];
-          } else if (line) {
-            // 예문 줄: "I'm going to work.  나 일하러 갈 거야." 형식
-            const parts = line.split("  ").map(s => s.trim()).filter(s => s);
-            if (parts.length >= 2) {
-              examples.push({ english: parts[0], korean: parts[1] });
-            }
+          });
+
+          if (currentPattern) {
+            filePatterns.push({ pattern: currentPattern, examples });
           }
-        });
 
-        // 마지막 패턴 추가
-        if (currentPattern) {
-          patterns.push({ pattern: currentPattern, examples });
-        }
-
-        setPatterns(patterns);
-      })
-      .catch((err) => {
-        console.error("[PatternLoader]", err);
-        setPatterns([]);
-      });
+          return filePatterns;
+        })
+    )).then(allPatterns => {
+      // 모든 패턴을 하나의 배열로 합치기
+      setPatterns(allPatterns.flat());
+    }).catch(err => {
+      console.error("[PatternLoader]", err);
+      setPatterns([]);
+    });
   }, [category]);
 
   // 현재 회차에 대한 사용 패턴 수 업데이트
   useEffect(() => {
-    const key = `${category}-${currentRound}`;
+    const key = `round-${currentRound}`;
     const roundPatterns = usedPatterns.get(key) || new Set();
     setUsedCount(roundPatterns.size);
-  }, [usedPatterns, category, currentRound]);
+  }, [usedPatterns, currentRound]);
 
   // ──────────────────────────────── 무작위 패턴 선택 ────────────────────────────────
   const getRandomPattern = () => {
-    const key = `${category}-${currentRound}`;
+    const key = `round-${currentRound}`;
     const roundPatterns = usedPatterns.get(key) || new Set();
     const available = patterns.filter((p) => !roundPatterns.has(p.pattern));
 
@@ -113,19 +112,30 @@ function En() {
     const p = getRandomPattern();
     setCurrentPattern(p);
     setShowAnswer(false);
-    setCurrentExampleIndex(0); // 새 패턴 선택시 첫 번째 예문으로
+    setCurrentExampleIndex(0);
+    setIsRoundStarted(true);
   };
 
   /** 이전/다음 예문 이동 */
   const handlePrevExample = () => {
-    setCurrentExampleIndex(prev => Math.max(0, prev - 1));
-    setShowAnswer(false);
+    if (showAnswer) {
+      setShowAnswer(false);
+    } else {
+      setCurrentExampleIndex(prev => Math.max(0, prev - 1));
+      setShowAnswer(false);
+    }
   };
 
   const handleNextExample = () => {
-    if (currentPattern && currentExampleIndex < currentPattern.examples.length - 1) {
-      setCurrentExampleIndex(prev => prev + 1);
-      setShowAnswer(false);
+    if (!showAnswer) {
+      setShowAnswer(true);
+    } else {
+      const nextPattern = getRandomPattern();
+      if (nextPattern) {
+        setCurrentPattern(nextPattern);
+        setCurrentExampleIndex(0);
+        setShowAnswer(false);
+      }
     }
   };
 
@@ -146,21 +156,17 @@ function En() {
       <div className="app-container">
         {/* 왼쪽 사이드바 */}
         <div className="sidebar">
-          <h2 className="app-title">영어 회화 복습</h2>
+          <h2 className="app-title">영어 회화 질문 선택기</h2>
 
           {/* 카테고리 선택 */}
           <div className="sidebar-section">
             <h3 className="section-title">카테고리</h3>
             <div className="category-selector">
-              {Object.keys(CATEGORY_FILES).map((cat) => (
-                <button
-                  key={cat}
-                  className={`category-button ${category === cat ? "active" : ""}`}
-                  onClick={() => setCategory(cat)}
-                >
-                  {CATEGORY_NAMES[cat]}
-                </button>
-              ))}
+              <button
+                className="category-button active"
+              >
+                {CATEGORY_NAMES[category]}
+              </button>
             </div>
           </div>
 
@@ -169,7 +175,10 @@ function En() {
             <h3 className="section-title">회차 (날짜)</h3>
             <div className="round-selector">
               <button
-                onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
+                onClick={() => {
+                  setCurrentRound((prev) => Math.max(1, prev - 1));
+                  setIsRoundStarted(false);
+                }}
                 disabled={currentRound === 1}
                 className="round-button"
               >
@@ -182,7 +191,10 @@ function En() {
               </div>
 
               <button
-                onClick={() => setCurrentRound((prev) => prev + 1)}
+                onClick={() => {
+                  setCurrentRound((prev) => prev + 1);
+                  setIsRoundStarted(false);
+                }}
                 className="round-button"
               >
                 &gt;
@@ -198,8 +210,16 @@ function En() {
 
           {/* 패턴 선택 버튼 */}
           <div className="sidebar-section">
-            <button className="question-button" onClick={handleSelectPattern}>
-              새 문제 선택하기
+            <button 
+              className="question-button" 
+              onClick={handleSelectPattern}
+              disabled={isRoundStarted}
+              style={{
+                opacity: isRoundStarted ? 0.6 : 1,
+                cursor: isRoundStarted ? 'not-allowed' : 'pointer'
+              }}
+            >
+              오늘 복습하기
             </button>
             <button 
               className="question-button mode-switch"
@@ -222,7 +242,7 @@ function En() {
         <div className="main-content">
           <div className="content-header">
             <h2>
-              {CATEGORY_NAMES[category]} - {currentRound}회차
+              영어 회화 질문 선택기 - {currentRound}회차
             </h2>
           </div>
 
@@ -231,9 +251,14 @@ function En() {
               <div className="english-content">
                 <div className="pattern-section">
                   <p className="pattern-text">
-                    {currentPattern.pattern.split('**').map((part, index) => 
-                      index % 2 === 0 ? part : <strong key={index}>{part}</strong>
-                    )}
+                    {currentPattern.pattern.split('**').map((part, index) => {
+                      const englishOnly = part.includes('  ') ? 
+                        part.substring(0, part.indexOf('  ')).trim() : 
+                        part.trim();
+                      return index % 2 === 1 ? 
+                        <strong key={index}>{englishOnly}</strong> : 
+                        englishOnly;
+                    })}
                   </p>
                 </div>
                 <div className="examples-section">
@@ -245,16 +270,31 @@ function En() {
                       marginBottom: '10px',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
                     }}>
-                      <p className="question-text">
-                        {currentPattern.examples[currentExampleIndex].korean}
-                      </p>
+                      {!showAnswer && (
+                        <p className="question-text">
+                          {currentPattern.examples[currentExampleIndex].korean}
+                        </p>
+                      )}
                       {showAnswer && (
-                        <p className="answer-text" style={{ 
-                          color: '#2E8B57',
+                        <div className="answer-text" style={{ 
                           marginTop: '10px'
                         }}>
-                          {currentPattern.examples[currentExampleIndex].english}
-                        </p>
+                          <p style={{ 
+                            color: '#2E8B57',
+                            fontSize: '1.1em',
+                            fontWeight: '500',
+                            marginBottom: '4px'
+                          }}>
+                            {currentPattern.examples[currentExampleIndex].english}
+                          </p>
+                          <p style={{ 
+                            fontSize: '0.85em', 
+                            color: '#2E8B5777',
+                            marginTop: 0
+                          }}>
+                            {currentPattern.examples[currentExampleIndex].korean}
+                          </p>
+                        </div>
                       )}
                     </div>
                   )}
@@ -266,36 +306,29 @@ function En() {
                   }}>
                     <button
                       onClick={handlePrevExample}
-                      disabled={currentExampleIndex === 0}
+                      disabled={currentExampleIndex === 0 && !showAnswer}
                       style={{
                         padding: '8px 15px',
                         fontSize: '16px',
                         border: 'none',
-                        backgroundColor: currentExampleIndex === 0 ? '#ddd' : '#575757',
+                        backgroundColor: currentExampleIndex === 0 && !showAnswer ? '#ddd' : '#575757',
                         color: 'white',
                         borderRadius: '4px',
-                        cursor: currentExampleIndex === 0 ? 'default' : 'pointer'
+                        cursor: currentExampleIndex === 0 && !showAnswer ? 'default' : 'pointer'
                       }}
                     >
                       &lt;
                     </button>
-                    <button 
-                      className="answer-toggle-button"
-                      onClick={() => setShowAnswer(!showAnswer)}
-                    >
-                      {showAnswer ? "정답 숨기기" : "정답 보기"}
-                    </button>
                     <button
                       onClick={handleNextExample}
-                      disabled={!currentPattern || currentExampleIndex >= currentPattern.examples.length - 1}
                       style={{
                         padding: '8px 15px',
                         fontSize: '16px',
                         border: 'none',
-                        backgroundColor: !currentPattern || currentExampleIndex >= currentPattern.examples.length - 1 ? '#ddd' : '#575757',
+                        backgroundColor: '#575757',
                         color: 'white',
                         borderRadius: '4px',
-                        cursor: !currentPattern || currentExampleIndex >= currentPattern.examples.length - 1 ? 'default' : 'pointer'
+                        cursor: 'pointer'
                       }}
                     >
                       &gt;
@@ -304,7 +337,9 @@ function En() {
                 </div>
               </div>
             ) : (
-              <p className="placeholder-text">왼쪽에서 문제를 선택해주세요</p>
+              <p className="placeholder-text">
+                {isRoundStarted ? "모든 문제를 완료했습니다!" : "왼쪽에서 '오늘 복습하기'를 눌러주세요"}
+              </p>
             )}
           </div>
         </div>
