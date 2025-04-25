@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import En from "./en";
 
 /**
  * ──────────────────────────────────────────────────────────────────────
@@ -26,32 +27,29 @@ import "./App.css";
 const CATEGORY_FILES = {
   DL: "/dl_db.txt", // Deep‑Learning 면접 질문
   CS: "/cs_db.txt", // Computer‑Science 면접 질문
-  EN: "/en_db.txt", // 영어회화 문장
 };
 
 /** 카테고리 이름 매핑 */
 const CATEGORY_NAMES = {
   DL: "딥러닝",
   CS: "컴퓨터 사이언스",
-  EN: "영어회화",
 };
 
 /** 루트 컴포넌트 */
 function App() {
   // ──────────────────────────────── 상태 정의(useState) ────────────────────────────────
+  const [isEnglishMode, setIsEnglishMode] = useState(false);
   const [category, setCategory] = useState("DL"); // 현재 카테고리
   const [questions, setQuestions] = useState([]); // 로드된 질문 배열
   const [currentRound, setCurrentRound] = useState(1); // 회차(1주 단위)
   const [currentQuestion, setCurrentQuestion] = useState(""); // 선택된 질문
-
-  // key 형식: "{category}-{round}", value: Set(이미 사용한 질문)
   const [usedQuestions, setUsedQuestions] = useState(new Map());
-
-  // 현재 회차에 사용한 질문 수와 전체 질문 수 추적
   const [usedCount, setUsedCount] = useState(0);
 
   // ──────────────────────────────── 데이터 로드(useEffect) ────────────────────────────────
   useEffect(() => {
+    if (isEnglishMode) return; // 영어 모드일 때는 실행하지 않음
+
     const filePath = CATEGORY_FILES[category];
 
     // 카테고리 전환 시 UI 초기화
@@ -74,7 +72,7 @@ function App() {
         console.error("[QuestionLoader]", err);
         setQuestions([]);
       });
-  }, [category]);
+  }, [category, isEnglishMode]);
 
   // 현재 회차에 대한 사용 질문 수 업데이트
   useEffect(() => {
@@ -123,86 +121,104 @@ function App() {
   // ──────────────────────────────── JSX 반환 ────────────────────────────────
   return (
     <div className="App">
-      <div className="app-container">
-        {/* 왼쪽 사이드바 */}
-        <div className="sidebar">
-          <h2 className="app-title">면접 질문 선택기</h2>
+      {isEnglishMode ? (
+        <En />
+      ) : (
+        <div className="app-container">
+          {/* 왼쪽 사이드바 */}
+          <div className="sidebar">
+            <h2 className="app-title">면접 질문 선택기</h2>
 
-          {/* 카테고리 선택 */}
-          <div className="sidebar-section">
-            <h3 className="section-title">카테고리</h3>
-            <div className="category-selector">
-              {Object.keys(CATEGORY_FILES).map((cat) => (
-                <button
-                  key={cat}
-                  className={`category-button ${
-                    category === cat ? "active" : ""
-                  }`}
-                  onClick={() => setCategory(cat)}
-                >
-                  {CATEGORY_NAMES[cat]}
-                </button>
-              ))}
+            {/* 카테고리 선택 */}
+            <div className="sidebar-section">
+              <h3 className="section-title">카테고리</h3>
+              <div className="category-selector">
+                {Object.keys(CATEGORY_FILES).map((cat) => (
+                  <button
+                    key={cat}
+                    className={`category-button ${
+                      category === cat ? "active" : ""
+                    }`}
+                    onClick={() => setCategory(cat)}
+                  >
+                    {CATEGORY_NAMES[cat]}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* 회차 선택 */}
-          <div className="sidebar-section">
-            <h3 className="section-title">회차 (날짜)</h3>
-            <div className="round-selector">
-              <button
-                onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
-                disabled={currentRound === 1}
-                className="round-button"
-              >
-                &lt;
-              </button>
+            {/* 회차 선택 */}
+            <div className="sidebar-section">
+              <h3 className="section-title">회차 (날짜)</h3>
+              <div className="round-selector">
+                <button
+                  onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
+                  disabled={currentRound === 1}
+                  className="round-button"
+                >
+                  &lt;
+                </button>
 
-              <div className="round-info">
-                <h4>{currentRound}회차</h4>
-                <p>{getCurrentDate()}</p>
+                <div className="round-info">
+                  <h4>{currentRound}회차</h4>
+                  <p>{getCurrentDate()}</p>
+                </div>
+
+                <button
+                  onClick={() => setCurrentRound((prev) => prev + 1)}
+                  className="round-button"
+                >
+                  &gt;
+                </button>
               </div>
 
-              <button
-                onClick={() => setCurrentRound((prev) => prev + 1)}
-                className="round-button"
+              <div className="stats">
+                <p>
+                  사용된 질문: {usedCount} / {questions.length}
+                </p>
+              </div>
+            </div>
+
+            {/* 질문 선택 버튼 */}
+            <div className="sidebar-section">
+              <button className="question-button" onClick={handleSelectQuestion}>
+                새 질문 선택하기
+              </button>
+              <button 
+                className="question-button mode-switch"
+                onClick={() => setIsEnglishMode(true)}
+                style={{ 
+                  backgroundColor: '#575757',
+                  color: 'white',
+                  border: '2px solid #575757',
+                  marginTop: '18rem',
+                  padding: '0.7rem 1rem',
+                  fontSize: '0.9rem'
+                }}
               >
-                &gt;
+                영어 복습 모드로 전환
               </button>
             </div>
+          </div>
 
-            <div className="stats">
-              <p>
-                사용된 질문: {usedCount} / {questions.length}
-              </p>
+          {/* 메인 콘텐츠 영역 - 질문 표시 */}
+          <div className="main-content">
+            <div className="content-header">
+              <h2>
+                {CATEGORY_NAMES[category]} - {currentRound}회차 질문
+              </h2>
+            </div>
+
+            <div className="question-display">
+              {currentQuestion ? (
+                <p className="question-text">{currentQuestion}</p>
+              ) : (
+                <p className="placeholder-text">왼쪽에서 질문을 선택해주세요</p>
+              )}
             </div>
           </div>
-
-          {/* 질문 선택 버튼 */}
-          <div className="sidebar-section">
-            <button className="question-button" onClick={handleSelectQuestion}>
-              새 질문 선택하기
-            </button>
-          </div>
         </div>
-
-        {/* 메인 콘텐츠 영역 - 질문 표시 */}
-        <div className="main-content">
-          <div className="content-header">
-            <h2>
-              {CATEGORY_NAMES[category]} - {currentRound}회차 질문
-            </h2>
-          </div>
-
-          <div className="question-display">
-            {currentQuestion ? (
-              <p className="question-text">{currentQuestion}</p>
-            ) : (
-              <p className="placeholder-text">왼쪽에서 질문을 선택해주세요</p>
-            )}
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
