@@ -203,43 +203,36 @@ const EnglishInstantTest = () => {
     const parsedQuestions = [];
     let currentHint = "";
 
-    console.log("입력된 텍스트:", text);
-    console.log("분리된 라인들:", lines);
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
 
       if (!line) continue;
 
+      // 힌트 라인 처리 (** **로 감싸진 텍스트)
       if (line.startsWith("**") && line.endsWith("**")) {
         currentHint = line.slice(2, -2).trim();
-        console.log("힌트 발견:", currentHint);
         continue;
       }
 
-      // 두 개 이상의 공백으로 분리
-      const parts = line
-        .split(/\s{2,}/)
-        .map((part) => part.trim())
-        .filter(Boolean);
-      console.log("파싱된 부분들:", parts);
+      // 영어와 한글 분리
+      // 1. 두 개 이상의 공백으로 분리
+      // 2. 탭으로 분리
+      // 3. 마침표 뒤에 공백이 있는 경우 분리
+      let parts = line.split(/\s{2,}|[\t]|(?<=\.)\s+/);
+      parts = parts.map((part) => part.trim()).filter(Boolean);
 
       if (parts.length >= 2) {
+        // 영어 문장에서 마지막 마침표 제거
+        const english = parts[0].replace(/\.$/, "");
+        // 한글 문장에서 마지막 마침표 제거
+        const korean = parts[1].replace(/\.$/, "");
+
         parsedQuestions.push({
           hint: currentHint,
-          question: parts[0],
-          answer: parts[1],
-        });
-        console.log("질문 추가됨:", {
-          hint: currentHint,
-          question: parts[0],
-          answer: parts[1],
+          question: english,
+          answer: korean,
         });
       }
-    }
-
-    if (parsedQuestions.length === 0) {
-      console.log("경고: 파싱된 질문이 없습니다!");
     }
 
     return parsedQuestions;
