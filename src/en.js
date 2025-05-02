@@ -165,7 +165,6 @@ function En() {
                   className={`category-button ${
                     category === cat ? "active" : ""
                   }`}
-                  onClick={() => setCategory(cat)}
                 >
                   {CATEGORY_NAMES[cat]}
                 </button>
