@@ -229,8 +229,8 @@ const EnglishInstantTest = () => {
 
         parsedQuestions.push({
           hint: currentHint,
-          question: english,
-          answer: korean,
+          question: korean,
+          answer: english,
         });
       }
     }
@@ -279,7 +279,7 @@ const EnglishInstantTest = () => {
           <TextArea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="다음과 같은 형식으로 입력하세요:&#10;&#10;**I'm on ~  ~하는 중이에요 / ~ 상태예요**&#10;I'm on a diet.   나 다이어트 중이야.&#10;I'm on a break.   나 쉬는 중이야."
+            placeholder="다음과 같은 형식으로 입력하세요:&#10;&#10;**I'm on ~  ~하는 중이에요 / ~ 상태예요**&#10;나 다이어트 중이야.   I'm on a diet.&#10;나 쉬는 중이야.   I'm on a break."
           />
           <Button onClick={handleStart}>테스트 시작</Button>
         </>
@@ -327,7 +327,7 @@ const EnglishInstantTest = () => {
               <div>
                 <QuestionText>{questions[currentIndex].question}</QuestionText>
                 <AnswerContainer>
-                  <AnswerText show={showAnswer}>
+                  <AnswerText show={showAnswer} style={{ color: "#007bff" }}>
                     {questions[currentIndex].answer}
                   </AnswerText>
                 </AnswerContainer>
