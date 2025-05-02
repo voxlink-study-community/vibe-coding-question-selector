@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/vibe-coding-question-selector/static/css/main.0e3475e6.css",
-    "main.js": "/vibe-coding-question-selector/static/js/main.6d2e1f17.js",
+    "main.css": "/vibe-coding-question-selector/static/css/main.6e86bb3c.css",
+    "main.js": "/vibe-coding-question-selector/static/js/main.5c9560cd.js",
     "static/js/453.99e83779.chunk.js": "/vibe-coding-question-selector/static/js/453.99e83779.chunk.js",
     "index.html": "/vibe-coding-question-selector/index.html",
-    "main.0e3475e6.css.map": "/vibe-coding-question-selector/static/css/main.0e3475e6.css.map",
-    "main.6d2e1f17.js.map": "/vibe-coding-question-selector/static/js/main.6d2e1f17.js.map",
+    "main.6e86bb3c.css.map": "/vibe-coding-question-selector/static/css/main.6e86bb3c.css.map",
+    "main.5c9560cd.js.map": "/vibe-coding-question-selector/static/js/main.5c9560cd.js.map",
     "453.99e83779.chunk.js.map": "/vibe-coding-question-selector/static/js/453.99e83779.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0e3475e6.css",
-    "static/js/main.6d2e1f17.js"
+    "static/css/main.6e86bb3c.css",
+    "static/js/main.5c9560cd.js"
   ]
 }
