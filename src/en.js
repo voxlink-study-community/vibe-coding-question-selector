@@ -5,13 +5,13 @@ import "./App.css";
 const CATEGORY_FILES = {
   "SP,PV": [
     "/vibe-coding-question-selector/en_sp_db.txt",
-    "/vibe-coding-question-selector/en_pv_db.txt"
-  ]
+    "/vibe-coding-question-selector/en_pv_db.txt",
+  ],
 };
 
 /** 카테고리 이름 매핑 */
 const CATEGORY_NAMES = {
-  "SP,PV": "Sentence Pattern & Phrasal Verbs"
+  "SP,PV": "Sentence Pattern & Phrasal Verbs",
 };
 
 /** 영어 학습 컴포넌트 */
@@ -33,51 +33,55 @@ function En() {
 
   // ──────────────────────────────── 데이터 로드 ────────────────────────────────
   useEffect(() => {
-    Promise.all(CATEGORY_FILES[category].map(file => 
-      fetch(file)
-        .then(res => res.text())
-        .then(data => {
-          const filePatterns = [];
-          let currentPattern = null;
-          let examples = [];
+    Promise.all(
+      CATEGORY_FILES[category].map((file) =>
+        fetch(file)
+          .then((res) => res.text())
+          .then((data) => {
+            const filePatterns = [];
+            let currentPattern = null;
+            let examples = [];
 
-          data.split("\n").forEach((line) => {
-            line = line.trim();
-            if (!line) return;
+            data.split("\n").forEach((line) => {
+              line = line.trim();
+              if (!line) return;
 
-            if (line.startsWith("**")) {
-              if (currentPattern) {
-                filePatterns.push({ pattern: currentPattern, examples });
-              }
-              currentPattern = line;
-              examples = [];
-            } else if (line) {
-              const parts = line.split("  ").map(s => s.trim()).filter(s => s);
-              if (parts.length >= 2) {
-                const [firstPart, ...rest] = parts;
-                const koreanPart = rest.join('  ');
-                if (firstPart.match(/[a-zA-Z]/)) {
-                  examples.push({ english: firstPart, korean: koreanPart });
-                } else {
-                  examples.push({ english: koreanPart, korean: firstPart });
+              if (line.startsWith("**")) {
+                // 패턴 줄: "**I'm going to ~~할 거예요**" 형식
+                if (currentPattern) {
+                  patterns.push({ pattern: currentPattern, examples });
+                }
+                currentPattern = line;
+                examples = [];
+              } else if (line) {
+                // 예문 줄: "I'm going to work.  나 일하러 갈 거야." 형식
+                const parts = line
+                  .split("  ")
+                  .map((s) => s.trim())
+                  .filter((s) => s);
+                if (parts.length >= 2) {
+                  examples.push({ english: parts[0], korean: parts[1] });
                 }
               }
+            });
+
+            // 마지막 패턴 추가
+            if (currentPattern) {
+              patterns.push({ pattern: currentPattern, examples });
             }
-          });
 
-          if (currentPattern) {
-            filePatterns.push({ pattern: currentPattern, examples });
-          }
-
-          return filePatterns;
-        })
-    )).then(allPatterns => {
-      // 모든 패턴을 하나의 배열로 합치기
-      setPatterns(allPatterns.flat());
-    }).catch(err => {
-      console.error("[PatternLoader]", err);
-      setPatterns([]);
-    });
+            return filePatterns;
+          })
+      )
+    )
+      .then((allPatterns) => {
+        // 모든 패턴을 하나의 배열로 합치기
+        setPatterns(allPatterns.flat());
+      })
+      .catch((err) => {
+        console.error("[PatternLoader]", err);
+        setPatterns([]);
+      });
   }, [category]);
 
   // 현재 회차에 대한 사용 패턴 수 업데이트
@@ -118,24 +122,17 @@ function En() {
 
   /** 이전/다음 예문 이동 */
   const handlePrevExample = () => {
-    if (showAnswer) {
-      setShowAnswer(false);
-    } else {
-      setCurrentExampleIndex(prev => Math.max(0, prev - 1));
-      setShowAnswer(false);
-    }
+    setCurrentExampleIndex((prev) => Math.max(0, prev - 1));
+    setShowAnswer(false);
   };
 
   const handleNextExample = () => {
-    if (!showAnswer) {
-      setShowAnswer(true);
-    } else {
-      const nextPattern = getRandomPattern();
-      if (nextPattern) {
-        setCurrentPattern(nextPattern);
-        setCurrentExampleIndex(0);
-        setShowAnswer(false);
-      }
+    if (
+      currentPattern &&
+      currentExampleIndex < currentPattern.examples.length - 1
+    ) {
+      setCurrentExampleIndex((prev) => prev + 1);
+      setShowAnswer(false);
     }
   };
 
@@ -162,11 +159,16 @@ function En() {
           <div className="sidebar-section">
             <h3 className="section-title">카테고리</h3>
             <div className="category-selector">
-              <button
-                className="category-button active"
-              >
-                {CATEGORY_NAMES[category]}
-              </button>
+              {Object.keys(CATEGORY_FILES).map((cat) => (
+                <button
+                  key={cat}
+                  className={`category-button ${
+                    category === cat ? "active" : ""
+                  }`}
+                >
+                  {CATEGORY_NAMES[cat]}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -210,27 +212,27 @@ function En() {
 
           {/* 패턴 선택 버튼 */}
           <div className="sidebar-section">
-            <button 
-              className="question-button" 
+            <button
+              className="question-button"
               onClick={handleSelectPattern}
               disabled={isRoundStarted}
               style={{
                 opacity: isRoundStarted ? 0.6 : 1,
-                cursor: isRoundStarted ? 'not-allowed' : 'pointer'
+                cursor: isRoundStarted ? "not-allowed" : "pointer",
               }}
             >
               오늘 복습하기
             </button>
-            <button 
+            <button
               className="question-button mode-switch"
               onClick={() => window.location.reload()}
-              style={{ 
-                backgroundColor: '#575757',
-                color: 'white',
-                border: '2px solid #575757',
-                marginTop: '18rem',
-                padding: '0.7rem 1rem',
-                fontSize: '0.9rem'
+              style={{
+                backgroundColor: "#575757",
+                color: "white",
+                border: "2px solid #575757",
+                marginTop: "18rem",
+                padding: "0.7rem 1rem",
+                fontSize: "0.9rem",
               }}
             >
               면접 질문 모드로 전환
@@ -241,9 +243,7 @@ function En() {
         {/* 메인 콘텐츠 영역 */}
         <div className="main-content">
           <div className="content-header">
-            <h2>
-              영어 회화 질문 선택기 - {currentRound}회차
-            </h2>
+            <h2>영어 회화 질문 선택기 - {currentRound}회차</h2>
           </div>
 
           <div className="question-display">
@@ -251,84 +251,101 @@ function En() {
               <div className="english-content">
                 <div className="pattern-section">
                   <p className="pattern-text">
-                    {currentPattern.pattern.split('**').map((part, index) => {
-                      const englishOnly = part.includes('  ') ? 
-                        part.substring(0, part.indexOf('  ')).trim() : 
-                        part.trim();
-                      return index % 2 === 1 ? 
-                        <strong key={index}>{englishOnly}</strong> : 
-                        englishOnly;
-                    })}
+                    {currentPattern.pattern
+                      .split("**")
+                      .map((part, index) =>
+                        index % 2 === 0 ? (
+                          part
+                        ) : (
+                          <strong key={index}>{part}</strong>
+                        )
+                      )}
                   </p>
                 </div>
                 <div className="examples-section">
                   {currentPattern && currentPattern.examples.length > 0 && (
-                    <div className="example-item" style={{ 
-                      backgroundColor: 'white',
-                      padding: '15px',
-                      borderRadius: '8px',
-                      marginBottom: '10px',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    }}>
-                      {!showAnswer && (
-                        <p className="question-text">
-                          {currentPattern.examples[currentExampleIndex].korean}
-                        </p>
-                      )}
+                    <div
+                      className="example-item"
+                      style={{
+                        backgroundColor: "white",
+                        padding: "15px",
+                        borderRadius: "8px",
+                        marginBottom: "10px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <p className="question-text">
+                        {currentPattern.examples[currentExampleIndex].korean}
+                      </p>
                       {showAnswer && (
-                        <div className="answer-text" style={{ 
-                          marginTop: '10px'
-                        }}>
-                          <p style={{ 
-                            color: '#2E8B57',
-                            fontSize: '1.1em',
-                            fontWeight: '500',
-                            marginBottom: '4px'
-                          }}>
-                            {currentPattern.examples[currentExampleIndex].english}
-                          </p>
-                          <p style={{ 
-                            fontSize: '0.85em', 
-                            color: '#2E8B5777',
-                            marginTop: 0
-                          }}>
-                            {currentPattern.examples[currentExampleIndex].korean}
-                          </p>
-                        </div>
+                        <p
+                          className="answer-text"
+                          style={{
+                            color: "#2E8B57",
+                            marginTop: "10px",
+                          }}
+                        >
+                          {currentPattern.examples[currentExampleIndex].english}
+                        </p>
                       )}
                     </div>
                   )}
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    gap: '10px' 
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     <button
                       onClick={handlePrevExample}
                       disabled={currentExampleIndex === 0 && !showAnswer}
                       style={{
-                        padding: '8px 15px',
-                        fontSize: '16px',
-                        border: 'none',
-                        backgroundColor: currentExampleIndex === 0 && !showAnswer ? '#ddd' : '#575757',
-                        color: 'white',
-                        borderRadius: '4px',
-                        cursor: currentExampleIndex === 0 && !showAnswer ? 'default' : 'pointer'
+                        padding: "8px 15px",
+                        fontSize: "16px",
+                        border: "none",
+                        backgroundColor:
+                          currentExampleIndex === 0 ? "#ddd" : "#575757",
+                        color: "white",
+                        borderRadius: "4px",
+                        cursor:
+                          currentExampleIndex === 0 ? "default" : "pointer",
                       }}
                     >
                       &lt;
                     </button>
                     <button
+                      className="answer-toggle-button"
+                      onClick={() => setShowAnswer(!showAnswer)}
+                    >
+                      {showAnswer ? "정답 숨기기" : "정답 보기"}
+                    </button>
+                    <button
                       onClick={handleNextExample}
+                      disabled={
+                        !currentPattern ||
+                        currentExampleIndex >=
+                          currentPattern.examples.length - 1
+                      }
                       style={{
-                        padding: '8px 15px',
-                        fontSize: '16px',
-                        border: 'none',
-                        backgroundColor: '#575757',
-                        color: 'white',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
+                        padding: "8px 15px",
+                        fontSize: "16px",
+                        border: "none",
+                        backgroundColor:
+                          !currentPattern ||
+                          currentExampleIndex >=
+                            currentPattern.examples.length - 1
+                            ? "#ddd"
+                            : "#575757",
+                        color: "white",
+                        borderRadius: "4px",
+                        cursor:
+                          !currentPattern ||
+                          currentExampleIndex >=
+                            currentPattern.examples.length - 1
+                            ? "default"
+                            : "pointer",
                       }}
                     >
                       &gt;
@@ -338,7 +355,9 @@ function En() {
               </div>
             ) : (
               <p className="placeholder-text">
-                {isRoundStarted ? "모든 문제를 완료했습니다!" : "왼쪽에서 '오늘 복습하기'를 눌러주세요"}
+                {isRoundStarted
+                  ? "모든 문제를 완료했습니다!"
+                  : "왼쪽에서 '오늘 복습하기'를 눌러주세요"}
               </p>
             )}
           </div>
@@ -348,4 +367,4 @@ function En() {
   );
 }
 
-export default En; 
+export default En;

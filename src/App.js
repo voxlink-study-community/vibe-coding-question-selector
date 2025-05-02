@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import En from "./en";
+import InstantTest from "./components/InstantTest";
+import EnglishInstantTest from "./components/EnglishInstantTest";
 
 /**
  * ──────────────────────────────────────────────────────────────────────
@@ -27,12 +29,16 @@ import En from "./en";
 const CATEGORY_FILES = {
   DL: "/dl_db.txt", // Deep‑Learning 면접 질문
   CS: "/cs_db.txt", // Computer‑Science 면접 질문
+  INSTANT: "instant", // 즉석 테스트
+  EN_INSTANT: "en_instant", // 영어 즉석 테스트
 };
 
 /** 카테고리 이름 매핑 */
 const CATEGORY_NAMES = {
   DL: "딥러닝",
   CS: "컴퓨터 사이언스",
+  INSTANT: "즉석 테스트",
+  EN_INSTANT: "영어 즉석 테스트",
 };
 
 /** 루트 컴포넌트 */
@@ -147,53 +153,65 @@ function App() {
               </div>
             </div>
 
-            {/* 회차 선택 */}
-            <div className="sidebar-section">
-              <h3 className="section-title">회차 (날짜)</h3>
-              <div className="round-selector">
-                <button
-                  onClick={() => setCurrentRound((prev) => Math.max(1, prev - 1))}
-                  disabled={currentRound === 1}
-                  className="round-button"
-                >
-                  &lt;
-                </button>
+            {category !== "INSTANT" && (
+              <>
+                {/* 회차 선택 */}
+                <div className="sidebar-section">
+                  <h3 className="section-title">회차 (날짜)</h3>
+                  <div className="round-selector">
+                    <button
+                      onClick={() =>
+                        setCurrentRound((prev) => Math.max(1, prev - 1))
+                      }
+                      disabled={currentRound === 1}
+                      className="round-button"
+                    >
+                      &lt;
+                    </button>
 
-                <div className="round-info">
-                  <h4>{currentRound}회차</h4>
-                  <p>{getCurrentDate()}</p>
+                    <div className="round-info">
+                      <h4>{currentRound}회차</h4>
+                      <p>{getCurrentDate()}</p>
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentRound((prev) => prev + 1)}
+                      className="round-button"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+
+                  <div className="stats">
+                    <p>
+                      사용된 질문: {usedCount} / {questions.length}
+                    </p>
+                  </div>
                 </div>
 
-                <button
-                  onClick={() => setCurrentRound((prev) => prev + 1)}
-                  className="round-button"
-                >
-                  &gt;
-                </button>
-              </div>
+                {/* 질문 선택 버튼 */}
+                <div className="sidebar-section">
+                  <button
+                    className="question-button"
+                    onClick={handleSelectQuestion}
+                  >
+                    새 질문 선택하기
+                  </button>
+                </div>
+              </>
+            )}
 
-              <div className="stats">
-                <p>
-                  사용된 질문: {usedCount} / {questions.length}
-                </p>
-              </div>
-            </div>
-
-            {/* 질문 선택 버튼 */}
             <div className="sidebar-section">
-              <button className="question-button" onClick={handleSelectQuestion}>
-                새 질문 선택하기
-              </button>
-              <button 
+              <button
                 className="question-button mode-switch"
                 onClick={() => setIsEnglishMode(true)}
-                style={{ 
-                  backgroundColor: '#575757',
-                  color: 'white',
-                  border: '2px solid #575757',
-                  marginTop: '18rem',
-                  padding: '0.7rem 1rem',
-                  fontSize: '0.9rem'
+                style={{
+                  backgroundColor: "#575757",
+                  color: "white",
+                  border: "2px solid #575757",
+                  marginTop: "1rem",
+                  padding: "0.7rem 1rem",
+                  fontSize: "0.9rem",
                 }}
               >
                 영어 복습 모드로 전환
@@ -201,21 +219,31 @@ function App() {
             </div>
           </div>
 
-          {/* 메인 콘텐츠 영역 - 질문 표시 */}
+          {/* 메인 콘텐츠 영역 */}
           <div className="main-content">
             <div className="content-header">
               <h2>
-                {CATEGORY_NAMES[category]} - {currentRound}회차 질문
+                {CATEGORY_NAMES[category]}
+                {!["INSTANT", "EN_INSTANT"].includes(category) &&
+                  ` - ${currentRound}회차 질문`}
               </h2>
             </div>
 
-            <div className="question-display">
-              {currentQuestion ? (
-                <p className="question-text">{currentQuestion}</p>
-              ) : (
-                <p className="placeholder-text">왼쪽에서 질문을 선택해주세요</p>
-              )}
-            </div>
+            {category === "INSTANT" ? (
+              <InstantTest />
+            ) : category === "EN_INSTANT" ? (
+              <EnglishInstantTest />
+            ) : (
+              <div className="question-display">
+                {currentQuestion ? (
+                  <p className="question-text">{currentQuestion}</p>
+                ) : (
+                  <p className="placeholder-text">
+                    왼쪽에서 질문을 선택해주세요
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
